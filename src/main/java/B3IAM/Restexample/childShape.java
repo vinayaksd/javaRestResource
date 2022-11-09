@@ -2,6 +2,8 @@ package B3IAM.Restexample;
 
 public class childShape extends Shape {
 
+	public  int i;
+
 	@Override
 	public float area(float value) {
 		// TODO Auto-generated method stub

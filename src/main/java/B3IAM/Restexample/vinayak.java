@@ -21,6 +21,7 @@ import java.util.Scanner;
 public class vinayak {
 
 	static String message = "";
+	
 
 	@GET
 	@Produces("text/plain")
@@ -494,10 +495,32 @@ public class vinayak {
 	@Path("abstract/{val}")
 	@Produces(MediaType.TEXT_HTML)
 	public String getShape(@PathParam("val") float x) {
-		childShape circle = new childShape();
+
+		childShape circle = new childShape(); {
+			circle.i = 5;
+		};
 		childShape triangle = new childShape();
-		return "circle area is: " + 3.14 * circle.area(x) + "<br>" + "triangle area is : " + x * x * x+"<br>"
-				+"drawn circle by: "+circle.drawnBy("naser")+"<br>drawn traingle by: "+triangle.drawnBy("vinnu");
+		return "circle area is: " + 3.14 * circle.area(x) + "<br>" + circle.i + "<br>triangle area is : " + x * x * x
+				+ "<br>" + "drawn circle by: " + circle.drawnBy("naser") + "<br>drawn traingle by: "
+				+ triangle.drawnBy("vinnu");
+
+	}
+
+	// implementation of functional interface.using the objects(num,multi)
+	// implementation of interface name
+	@GET
+	@Path("function/{x}/{y}")
+	@Produces(MediaType.TEXT_HTML)
+	public String getFunctionalInterface(@PathParam("x") float x, @PathParam("y") float y) {
+
+		Number num = (val1, val2) -> { // -> is called lambda expression.
+			return x + y;
+		};
+
+		Number multi = (val3, val4) -> {
+			return x * y;
+		};
+		return "addition: " + num.operation(x, y) + "<br>" + " multiplication: " + multi.operation(x, y);
 
 	}
 }
