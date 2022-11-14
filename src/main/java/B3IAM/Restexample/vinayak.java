@@ -21,7 +21,6 @@ import java.util.Scanner;
 public class vinayak {
 
 	static String message = "";
-	
 
 	@GET
 	@Produces("text/plain")
@@ -496,9 +495,11 @@ public class vinayak {
 	@Produces(MediaType.TEXT_HTML)
 	public String getShape(@PathParam("val") float x) {
 
-		childShape circle = new childShape(); {
+		childShape circle = new childShape();
+		{
 			circle.i = 5;
-		};
+		}
+		;
 		childShape triangle = new childShape();
 		return "circle area is: " + 3.14 * circle.area(x) + "<br>" + circle.i + "<br>triangle area is : " + x * x * x
 				+ "<br>" + "drawn circle by: " + circle.drawnBy("naser") + "<br>drawn traingle by: "
@@ -522,5 +523,37 @@ public class vinayak {
 		};
 		return "addition: " + num.operation(x, y) + "<br>" + " multiplication: " + multi.operation(x, y);
 
+	}
+
+	@GET
+	@Path("alphabets/{str}")
+	@Produces(MediaType.TEXT_HTML)
+
+	public String vowelconsonantsPositions(@PathParam("str") String x) {
+		String sent[] = x.split(",");
+		String vowels[] = { "a", "e", "i", "o", "u" };
+		String consonants[] = { "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v",
+				"w", "x", "y", "z" };
+		String s = "";
+		indexString is = new indexString();
+		for (String val : sent) {
+
+			for (String conso : consonants) {
+				if (val == conso) {
+					s += "c" + is.findIndex(consonants, val);
+
+				}
+			}
+			for (String vowel : vowels) {
+
+				if (val == vowel) {
+
+					s += "v" + is.findIndex(vowels, val);
+
+				}
+			}
+		}
+
+		return s;
 	}
 }
