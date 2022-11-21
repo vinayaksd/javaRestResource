@@ -13,6 +13,7 @@ import org.glassfish.connectors.admin.cli.internal.GetSystemRarsAllowingPoolCrea
 import stringReturn.StringMessage;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -598,7 +599,7 @@ public class vinayak {
 		String text = "";
 		String result = "";
 		try {
-			Seasons season = Seasons.valueOf(Season.toUpperCase());
+			Seasons season = Seasons.valueOf(Season.toUpperCase()); 	// enumname.valueof(enums) into an object
 
 			switch (season) {
 			case SUMMER:
@@ -611,7 +612,7 @@ public class vinayak {
 				text = "<font color='yellow' size=10px>";
 				break;
 			}
-			result = text + season.toString() + ":" + season.situation + " is " + season.code + "</font>";
+			result = text + season.toString() + ":" + season.situation + " is " + season.temp + "</font>";
 			return result;
 		} catch (Exception e) {
 			return text + "<font color='red' size=10px>" + "invalid input of season" + "</font>";
@@ -634,15 +635,20 @@ public class vinayak {
 			my.close();
 
 			FileInputStream fin = new FileInputStream("D:\\infra\\test.txt");	//inputstream is to read the inputdata 
+			FileOutputStream fos = new FileOutputStream("D:\\iam_basics\\trail.txt"); // outputing into diff file
+			
 			int i = 0;
 			while ((i = fin.read()) != -1) { 		// i holds the characters from file
 				
-				if (i == '\n') { 						// 13 is ascii value of "enter"
+				if (i == 13) { 					// 13 is ascii value of "enter"
 					s+="<br>";
+					fos.write((char) i);
 				}
 				
-				else
+				else {
 				s+= (char) i; 					// appending to s
+				fos.write((char) i);
+				}
 			}
 			
 			return s;
@@ -652,5 +658,46 @@ public class vinayak {
 			return "no file is present";
 		}
 
+	}
+	
+	@GET
+	@Path("CricketEnum/{str}")
+	@Produces(MediaType.TEXT_HTML)
+	public String getCricketEnum(@PathParam("str") String str) {
+		
+		try {
+			
+			
+		String runs = "";
+		int output;
+		Cricket cri= Cricket.valueOf(str.toUpperCase());
+		switch(cri) {
+		case NOBALL:
+			runs+=cri.immediateEffect+6;
+			break;
+		case WICKET:
+			runs+=cri.immediateEffect+0;
+			break;
+		case WIDE:
+			runs+=cri.immediateEffect+4;
+			break;
+		case LEGBYES:
+			runs+=cri.immediateEffect+4;
+			break;
+		case GOOD:
+			runs+=cri.immediateEffect+6;
+			break;
+		case OVER20MATCH:
+			runs+=cri.immediateEffect;
+			break;
+		case OVER50MATCH:
+			runs+=cri.immediateEffect;
+			break;
+		}
+		return runs+" can be scored by a "+cri.toString()+"ball. credit of ball to batsman = "+cri.immediateEffect+" ----"+cri.Result;
+		}
+		catch(Exception e) {
+			return e.getMessage();
+		}
 	}
 }

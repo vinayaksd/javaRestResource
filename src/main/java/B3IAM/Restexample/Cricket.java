@@ -1,0 +1,23 @@
+package B3IAM.Restexample;
+
+public enum Cricket {
+	NOBALL(1,"CREDITED TO BATSMAN SCORE"),
+	WICKET(0,"LOSS TO BATTING TEAM"),
+	WIDE(1,"CREDITED TO BATSMAN SCORE"),
+	LEGBYES(0,"CREDITED TO BATSMAN TEAM NOT BATTER"),
+	GOOD(0,"CREDITED TO BATSMAN SCORE"),
+	OVER20MATCH(663,"POSSIBILITY OF MAXIMUM RUNS BY SINGLE BATSMAN"),
+	OVER50MATCH(1653,"POSSIBILITY OF MAXIMUM RUNS BY SINGLE BATSMAN");
+	
+	int immediateEffect;
+	String Result;
+	
+	Cricket(int val, String Result){
+		this.immediateEffect=val;
+
+		this.Result=Result;
+		
+	}
+	
+	
+}
