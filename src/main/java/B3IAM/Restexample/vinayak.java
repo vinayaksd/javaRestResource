@@ -540,7 +540,7 @@ public class vinayak {
 
 			for (String conso : consonants) {
 				if (val == conso) {
-					s += "c" + is.findIndex(consonants, val);
+					s += "c" + "" + is.findIndex(consonants, val);
 
 				}
 			}
@@ -548,12 +548,109 @@ public class vinayak {
 
 				if (val == vowel) {
 
-					s += "v" + is.findIndex(vowels, val);
+					s += "v" + "" + is.findIndex(vowels, val);
 
 				}
 			}
 		}
 
 		return s;
+	}
+
+	@GET
+	@Path("Signal/{str}")
+	@Produces(MediaType.TEXT_HTML)
+	// enum explained with associated signal code
+	public String getSignal(@PathParam("str") String color) {
+
+		String text = "";
+		String result = "";
+		try {
+			Signal signal = Signal.valueOf(color.toUpperCase());
+			switch (signal) {
+			case RED:
+				text = "<font color='red' size=10px>";
+				break;
+			case GREEN:
+				text = "<font color='green' size=10px>";
+				break;
+			case YELLOW:
+				text = "<font color='YELLOW' size=10px>";
+				break;
+			default:
+				text = "<font color='green' size=10px>";
+			}
+			result = text + signal.toString() + ":" + signal.signal + " :" + signal.code + "</font>";
+			return result;
+		}
+
+		catch (Exception e) {
+			result = "<font color='" + color + "' size=10px>The given signal color is not valid</font>";
+			return result;
+		}
+
+	}
+
+	@GET
+	@Path("Season/{str}")
+	@Produces(MediaType.TEXT_HTML)
+	public String getSeason(@PathParam("str") String Season) {
+		String text = "";
+		String result = "";
+		try {
+			Seasons season = Seasons.valueOf(Season.toUpperCase());
+
+			switch (season) {
+			case SUMMER:
+				text = "<font color='orange' size=10px>";
+				break;
+			case WINTER:
+				text = "<font color='blue' size=10px>";
+				break;
+			case AUTUMN:
+				text = "<font color='yellow' size=10px>";
+				break;
+			}
+			result = text + season.toString() + ":" + season.situation + " is " + season.code + "</font>";
+			return result;
+		} catch (Exception e) {
+			return text + "<font color='red' size=10px>" + "invalid input of season" + "</font>";
+
+		}
+
+	}
+
+	@GET
+	@Path("inputstreams/{str1}/{str2}")
+	@Produces(MediaType.TEXT_HTML)
+
+	public String getAddition(@PathParam("str1") int str1, @PathParam("str2") int str2) {
+		String s = "";
+
+		try {
+			FileWriter my = new FileWriter("D:\\infra\\test.txt");
+			int out = str1 + str2;
+			my.write("inputs ->" + str1 + "," + str2 + "\n" + "output ->" + out);		//inserting values with addition
+			my.close();
+
+			FileInputStream fin = new FileInputStream("D:\\infra\\test.txt");	//inputstream is to read the inputdata 
+			int i = 0;
+			while ((i = fin.read()) != -1) { 		// i holds the characters from file
+				
+				if (i == '\n') { 						// 13 is ascii value of "enter"
+					s+="<br>";
+				}
+				
+				else
+				s+= (char) i; 					// appending to s
+			}
+			
+			return s;
+		} 
+		
+		catch (Exception e) {
+			return "no file is present";
+		}
+
 	}
 }
