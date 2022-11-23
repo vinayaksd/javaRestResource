@@ -16,7 +16,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Path("vinayak")
 public class vinayak {
@@ -508,8 +512,8 @@ public class vinayak {
 
 	}
 
-	// implementation of functional interface.using the objects(num,multi)
-	// implementation of interface name
+	// implementation of functional interface.using the numberType (num,multi)
+	// implementation of interface number
 	@GET
 	@Path("function/{x}/{y}")
 	@Produces(MediaType.TEXT_HTML)
@@ -599,7 +603,7 @@ public class vinayak {
 		String text = "";
 		String result = "";
 		try {
-			Seasons season = Seasons.valueOf(Season.toUpperCase()); 	// enumname.valueof(enums) into an object
+			Seasons season = Seasons.valueOf(Season.toUpperCase()); // enumname.valueof(enums) into an object
 
 			switch (season) {
 			case SUMMER:
@@ -631,73 +635,147 @@ public class vinayak {
 		try {
 			FileWriter my = new FileWriter("D:\\infra\\test.txt");
 			int out = str1 + str2;
-			my.write("inputs ->" + str1 + "," + str2 + "\n" + "output ->" + out);		//inserting values with addition
+			my.write("inputs ->" + str1 + "," + str2 + "\n" + "output ->" + out); // inserting values with addition
 			my.close();
 
-			FileInputStream fin = new FileInputStream("D:\\infra\\test.txt");	//inputstream is to read the inputdata 
+			FileInputStream fin = new FileInputStream("D:\\infra\\test.txt"); // inputstream is to read the inputdata
 			FileOutputStream fos = new FileOutputStream("D:\\iam_basics\\trail.txt"); // outputing into diff file
-			
+
 			int i = 0;
-			while ((i = fin.read()) != -1) { 		// i holds the characters from file
-				
-				if (i == 13) { 					// 13 is ascii value of "enter"
-					s+="<br>";
+			while ((i = fin.read()) != -1) { // i holds the characters from file
+
+				if (i == 13) { // 13 is ascii value of "enter"
+					s += "<br>";
 					fos.write((char) i);
 				}
-				
+
 				else {
-				s+= (char) i; 					// appending to s
-				fos.write((char) i);
+					s += (char) i; // appending to s
+					fos.write((char) i);
 				}
 			}
-			
+
 			return s;
-		} 
-		
+		}
+
 		catch (Exception e) {
 			return "no file is present";
 		}
 
 	}
-	
+
 	@GET
 	@Path("CricketEnum/{str}")
 	@Produces(MediaType.TEXT_HTML)
 	public String getCricketEnum(@PathParam("str") String str) {
-		
+
 		try {
-			
-			
-		String runs = "";
-		int output;
-		Cricket cri= Cricket.valueOf(str.toUpperCase());
-		switch(cri) {
-		case NOBALL:
-			runs+=cri.immediateEffect+6;
-			break;
-		case WICKET:
-			runs+=cri.immediateEffect+0;
-			break;
-		case WIDE:
-			runs+=cri.immediateEffect+4;
-			break;
-		case LEGBYES:
-			runs+=cri.immediateEffect+4;
-			break;
-		case GOOD:
-			runs+=cri.immediateEffect+6;
-			break;
-		case OVER20MATCH:
-			runs+=cri.immediateEffect;
-			break;
-		case OVER50MATCH:
-			runs+=cri.immediateEffect;
-			break;
+
+			String runs = "";
+			int output;
+			Cricket cri = Cricket.valueOf(str.toUpperCase()); // enumname.valueof(enums) into an object
+
+			switch (cri) {
+			case NOBALL:
+				runs += cri.immediateEffect + 6;
+				break;
+			case WICKET:
+				runs += cri.immediateEffect + 0;
+				break;
+			case WIDE:
+				runs += cri.immediateEffect + 4;
+				break;
+			case LEGBYES:
+				runs += cri.immediateEffect + 4;
+				break;
+			case GOOD:
+				runs += cri.immediateEffect + 6;
+				break;
+			case OVER20MATCH:
+				runs += cri.immediateEffect;
+				break;
+			case OVER50MATCH:
+				runs += cri.immediateEffect;
+				break;
+			}
+			return "<u>" + runs + "</u>" + " can be scored by a " + cri.toString() + " ball." + "<br>"
+					+ "credit of ball to batsman = " + cri.immediateEffect + "<br>" + " ----" + cri.Result;
 		}
-		return runs+" can be scored by a "+cri.toString()+"ball. credit of ball to batsman = "+cri.immediateEffect+" ----"+cri.Result;
-		}
-		catch(Exception e) {
+
+		catch (Exception e) {
 			return e.getMessage();
 		}
+	}
+
+	@GET
+	@Path("list3")
+	@Produces(MediaType.TEXT_HTML)
+	public String getCommonElements(@PathParam("str") String str) {
+
+		int k = 0;
+		int n = 0;
+		String s = "";
+
+		List<Integer> list1 = new ArrayList<>(); // list1
+		List<Integer> list2 = new ArrayList<>(); // list2
+		List<Integer> list3 = new ArrayList<>();
+
+		for (int i = 1; i <= 10; i++) {
+			list1.add(k++, i);
+		}
+
+		for (int i = 5; i <= 10; i++) {
+			list2.add(n++, i);
+		}
+
+		for (int i = 0; i < list2.size(); i++) { // checking the contents froms 2nd list
+			int j = 0;
+			if (list1.contains(list2.get(i)))
+				list3.add(j++, list2.get(i));
+		}
+
+		for (Integer a : list3)
+			s += a + " ";
+		return s;
+	}
+
+	@GET
+	@Path("Sortchar/{str}")
+	@Produces(MediaType.TEXT_HTML)
+	public String SortArray(@PathParam("str") String str) {
+		String s = str;
+		String r = "";
+		char arr[] = s.toCharArray();
+
+		Arrays.sort(arr);
+		List<Character> list = new ArrayList<>();
+		for (char result : arr)
+			list.add(result);
+
+		for (char result : arr)
+
+			r = r + result + " ";
+		return "after sorting = " + r;
+
+	}
+
+	@GET
+	@Path("duplicates/{str}")
+	@Produces(MediaType.TEXT_HTML)
+	public String removeDuplicates(@PathParam("str") String str) {
+		String r = "";
+		String s1[]=str.split(",");
+		// input list with duplicates
+		List<String> list = new ArrayList<>(Arrays.asList(s1));
+		// Print the Arraylist
+		System.out.println("ArrayList with duplicates: " + list);
+
+		// Construct a new list from the set constucted from elements
+		// of the original list
+		List<String> newList = list.stream().distinct().collect(Collectors.toList());
+
+		for (String m : newList)
+			r += m + " ";
+		return "duplicates removed = "+r;
 	}
 }
