@@ -12,13 +12,22 @@ import org.glassfish.connectors.admin.cli.internal.GetSystemRarsAllowingPoolCrea
 
 import stringReturn.StringMessage;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -478,7 +487,9 @@ public class vinayak {
 	@Path("checktype")
 	public String checktype(@PathParam("x") String x) {
 		InstanceOf<Integer> io = new InstanceOf<Integer>();
+		InstanceOf<String> st = new InstanceOf<String>();
 		io.x = 0;
+		st.x = "";
 		return io.getType();
 	}
 
@@ -644,7 +655,7 @@ public class vinayak {
 			int i = 0;
 			while ((i = fin.read()) != -1) { // i holds the characters from file
 
-				if (i == 13) { // 13 is ascii value of "enter"
+				if (i == '\n') { // 13 is ascii value of "enter"
 					s += "<br>";
 					fos.write((char) i);
 				}
@@ -764,7 +775,7 @@ public class vinayak {
 	@Produces(MediaType.TEXT_HTML)
 	public String removeDuplicates(@PathParam("str") String str) {
 		String r = "";
-		String s1[]=str.split(",");
+		String s1[] = str.split(",");
 		// input list with duplicates
 		List<String> list = new ArrayList<>(Arrays.asList(s1));
 		// Print the Arraylist
@@ -776,6 +787,217 @@ public class vinayak {
 
 		for (String m : newList)
 			r += m + " ";
-		return "duplicates removed = "+r;
+		return "duplicates removed = " + r;
 	}
+
+	@GET
+	@Path("items/list")
+	@Produces(MediaType.APPLICATION_XML)
+	public List<Item> getItems() {
+		Item i1 = new Item(10, "biryani", 250);
+		Item i2 = new Item(11, "roti", 25);
+		Item i3 = new Item(12, "curry", 150);
+		List<Item> items = new ArrayList<>();
+		items.add(i1);
+		items.add(i2);
+		items.add(i3);
+		Collections.sort(items);
+		return items;
+	}
+
+	@GET
+	@Path("sort/emp")
+	@Produces(MediaType.APPLICATION_XML)
+
+	public List<Emps> listofStuds() {
+		int id[] = { 101, 102, 103, 104 };
+		String names[] = { "vinnu", "akash", "abhishek", "amani" };
+		double sal[] = { 70000, 10000, 5000, 2000 };
+		double bonus[] = new double[sal.length];
+
+		for (int i = 0; i < bonus.length; i++) {
+
+			if (sal[i] > 25000)
+				bonus[i] = 10 * sal[i] / 100;
+			if (sal[i] > 10000 && sal[i] <= 25000)
+				bonus[i] = 15 * sal[i] / 100;
+			if (sal[i] <= 10000)
+				bonus[i] = 20 * sal[i] / 100;
+
+		}
+
+		List<Emps> list = new ArrayList<Emps>();
+
+		for (int i = 0; i < sal.length; i++) {
+			Emps e = new Emps(id[i], names[i], sal[i], bonus[i]);
+			list.add(e);
+		}
+		Collections.sort(list);
+		return list;
+	}
+
+	@GET
+	@Path("map")
+	@Produces(MediaType.TEXT_HTML)
+
+	public String getMap() {
+		Map<Integer, String> map = new HashMap<>();
+		String names[] = { "vinnu", "akash", "irfan" };
+		for (int i = 101; i <= 100 + names.length; i++)
+			map.put(i, names[i - 101]);
+		String s = "";
+		for (Map.Entry<Integer, String> take : map.entrySet())
+			s += take.getKey() + " :  " + take.getValue() + "<br>";
+		return s;
+	}
+
+	@GET
+	@Path("map/list")
+	@Produces(MediaType.TEXT_HTML)
+
+	public String getMarks() {
+		Map<Integer, List<Integer>> map = new HashMap<>();
+		List<Integer> marks1 = Arrays.asList(56, 66, 78, 89, 98);
+		List<Integer> marks2 = Arrays.asList(45, 65, 87, 39, 90);
+		map.put(101, marks1);
+		map.put(102, marks2);
+		String s = "";
+		int i = 0;
+		for (Map.Entry<Integer, List<Integer>> take : map.entrySet()) {
+			s += take.getKey() + " :  " + take.getValue() + "<br>";
+
+		}
+		return s;
+	}
+
+	@GET
+	@Path("map/ofMap")
+	@Produces(MediaType.TEXT_HTML)
+	public String family() {
+		Map<String, Map<String, Object>> map = new LinkedHashMap<>();
+		Map<String, Object> head = new LinkedHashMap<>();
+		Map<String, Object> mem1 = new LinkedHashMap<>();
+		Map<String, Object> mem2 = new LinkedHashMap<>();
+
+		head.put("papa", "Tall");
+		head.put("age", 55);
+		head.put("likes", "me");
+
+		mem1.put("sister", "short");
+		mem1.put("age", "22");
+		mem1.put("likes", "all");
+
+		mem2.put("me", "normalHeight");
+		mem2.put("Likes", "Noone");
+		mem2.put("interest", "java");
+
+		map.put("head", head);
+		map.put("sister", mem1);
+		map.put("me", mem2);
+
+		String s = "";
+
+		for (Entry<String, Map<String, Object>> take : map.entrySet()) {
+			s += take.getKey() + " :  " + take.getValue() + "<br>";
+		}
+		return s;
+	}
+
+	@GET
+	@Path("mapMarks")
+	@Produces(MediaType.TEXT_HTML)
+	public String marksMap() {
+		int total = 0;
+		int total2 = 0;
+		String s = "";
+
+		Map<String, Map<String, Integer>> map = new HashMap<>();
+		Map<String, Integer> sub = new HashMap<>();
+
+		List<Integer> social = Arrays.asList(56, 66, 78, 89, 98);
+		List<Integer> maths = Arrays.asList(45, 76, 22, 67, 90);
+
+		List<Integer> percent = new ArrayList<>();
+
+		for (Integer a : social) {
+			total += a;
+		}
+		for (Integer a : maths) {
+			total2 += a;
+		}
+		int percent1 = total * 100 / 500;
+		int percent2 = total2 * 100 / 500;
+		Integer p1 = new Integer(percent1);
+		Integer p2 = new Integer(percent2);
+
+		sub.put("social", p1);
+		sub.put("maths", p2);
+		map.put("vinayak", sub);
+
+		for (Entry<String, Map<String, Integer>> take : map.entrySet()) {
+			s += take.getKey() + " :  " + take.getValue() + "<br>" + percent1;
+		}
+		return s;
+
+	}
+
+	@GET
+	@Path("connect_db")
+	@Produces(MediaType.TEXT_HTML)
+	public String connectToDatabase() {
+		try {
+			Connection c = serviceRest.connect();
+			return "connected  " + c;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return e.getMessage();
+		}
+	}
+	
+	
+
+	@GET
+	@Produces(MediaType.TEXT_HTML)			//converting file data into list then displaying
+	@Path("listFilename/{name}")
+	public String fileIntoList(@PathParam("name") int name) throws FileNotFoundException {
+		
+
+		int i = 0;
+		String value = "";
+		String s = "";
+		int count = 0;
+
+		List<String> l = new ArrayList<>();
+
+		try {
+			FileInputStream fin = new FileInputStream("D:\\infra\\" + "tab_" + name + ".txt");
+			while ((i = fin.read()) != -1) {
+
+				if (i=='\n') {   								//"\n".equals(i)
+					l.add(value);
+					count++;
+					value = "";
+					
+				} else {
+					value = value + (char) i;
+				}
+
+			}
+			fin.close();
+
+			for (String a : l) {
+				s += a + "<br>";
+				System.out.println(a+" ");
+			}
+
+		}
+
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return s;
+
+	}
+
 }
