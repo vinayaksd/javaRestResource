@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 @Path("vinayak")
@@ -1076,7 +1078,7 @@ public class vinayak {
 	@Produces(MediaType.TEXT_HTML)
 	public void websiteOpening(@Context HttpServletRequest req,@Context HttpServletResponse rep) throws IOException {
 		
-		String value= req.getParameter("web");
+		String value= req.getParameter("web");  //picking by common name 'web'
 		
 		switch(value) {
 		
@@ -1092,10 +1094,51 @@ public class vinayak {
 			rep.sendRedirect("https://www.google.com");
 		break;
 		
+		}	
+		
+	}
+	
+	@GET
+	@Path("token/{enter}/{delimiter}")   //delimiter allows you to split based on individual characters. eg @. 
+	@Produces(MediaType.TEXT_HTML)		//whereever @ character and . is present in string it splits.
+	
+	public String tokeniser(@PathParam("enter") String enter,@PathParam("delimiter")String delimiter) {
+		String s="";
+		StringTokenizer tock = new StringTokenizer(enter, delimiter);	
+		
+		while(tock.hasMoreTokens()) {
+			s+=tock.nextToken()+"<br>";
 		}
 		
+		return s;
 		
 		
 	}
+	
+	@GET
+	@Path("outer") 
+	@Produces(MediaType.TEXT_HTML)
+	
+	public String outerclass() {
+		Outer out = new Outer();
+		Outer.Inner in = out.new Inner();
+		Outer.Inner1 in1= new Outer.Inner1();
+		return in.i1+"---------"+in1.i2;
+		
+		
+	}
+	
+	@GET
+	@Path("time") 
+	@Produces(MediaType.TEXT_HTML)
+	public String getDate() {
+		Calendar cal = Calendar.getInstance();  //factory method is that method when called provides object
+		cal.set(2022,10,30,1,10);
+		return cal.getTime().toString()+"<br>"+
+				"Day: "+cal.get(cal.DAY_OF_WEEK)+"<br>"
+				+"Month_Day: "+cal.get(cal.DAY_OF_MONTH)+"<br>"
+				+"Year: "+ cal.get(cal.YEAR)+"<br>"
+				+"AM/PM: "+ cal.get(cal.AM_PM);
+		}
 
 }
