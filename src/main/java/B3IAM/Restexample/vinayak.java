@@ -1,9 +1,12 @@
 package B3IAM.Restexample;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,6 +23,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -946,8 +951,9 @@ public class vinayak {
 	@Produces(MediaType.TEXT_HTML)
 	public String connectToDatabase() {
 		try {
-			Connection c = serviceRest.connect();
-			return "connected  " + c;
+			Connection c = serviceRest.connect();			
+			
+			return "connected  :" + c;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return e.getMessage();
@@ -973,7 +979,7 @@ public class vinayak {
 			FileInputStream fin = new FileInputStream("D:\\infra\\" + "tab_" + name + ".txt");
 			while ((i = fin.read()) != -1) {
 
-				if (i=='\n') {   								//"\n".equals(i)
+				if (i=='\n') {   								//"\n".equals(i) didnt worked here
 					l.add(value);
 					count++;
 					value = "";
@@ -998,6 +1004,98 @@ public class vinayak {
 		}
 		return s;
 
+	}
+	@GET
+	@Path("insert/{id},{name},{sal},{dep},{mgr}")
+	@Produces(MediaType.TEXT_HTML)
+	public String insert(@PathParam("id")int id,@PathParam("name")String name,@PathParam("sal")int sal,@PathParam("dep")int dep,@PathParam("mgr")int mgr) throws SQLException {
+		serviceRest db=new serviceRest();
+		
+		Connection con =serviceRest.connect();
+		Statement st = con.createStatement();
+		if(con==null)
+			return "not connected";
+		else {
+		
+			db.insert(id, name, sal, dep, mgr);
+			return "data saved";
+		}
+		/**/
+	}
+	
+	@GET
+	@Path("create/{id},{name},{courses},{age}")
+	@Produces(MediaType.TEXT_HTML)
+	public String createTable(@PathParam("id") int id,@PathParam("name") String name,@PathParam("courses") String courses,@PathParam("age") int age ) throws SQLException {
+		
+		serviceRest db=new serviceRest();
+		Connection con =serviceRest.connect();
+		Statement st = con.createStatement();
+		if(con==null)
+			return "not connected";
+		else {
+		
+			db.createtbStudents(id, name, courses, age);
+			return "data saved";
+		}
+		
+	}
+	
+	@GET
+	@Path("personBday")
+	@Produces(MediaType.TEXT_HTML)
+	public String wishPerson(@Context HttpServletRequest req) {
+		String name= req.getParameter("uname");
+		String value[]= req.getParameterValues("age");
+		String s="";
+		
+		if(value==null)
+			return null;
+		
+		
+		int s1=Integer.parseInt(value[0]);   //only one value at index 0 after selection radio button.
+		
+			
+		switch(s1) {
+		case 30:
+		s+= "Happy b day  "+"<b>"+name+ "<br>you are celebrating your "+"0-30"+" birthday";
+		break;
+		case 60:
+		s+= "Happy b day  "+"<b>"+name+ "<br>you are celebrating your "+"31-60"+" birthday";
+		break;
+		case 100:			
+		s+= "Happy b day  "+"<b>"+name+ "<br>you are celebrating your "+"61-100"+" birthday";
+		break;
+		}
+		
+		return s;
+	}
+	
+	@GET
+	@Path("website/open")
+	@Produces(MediaType.TEXT_HTML)
+	public void websiteOpening(@Context HttpServletRequest req,@Context HttpServletResponse rep) throws IOException {
+		
+		String value= req.getParameter("web");
+		
+		switch(value) {
+		
+		case "identity and access":
+			 rep.sendRedirect("https://www.identityandaccesssolutions.com/");
+		break;
+		
+		case "facebook":
+			rep.sendRedirect("https://www.facebook.com/");
+		break;
+		
+		case "google":			
+			rep.sendRedirect("https://www.google.com");
+		break;
+		
+		}
+		
+		
+		
 	}
 
 }
