@@ -2,7 +2,9 @@ package B3IAM.Restexample;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,10 +27,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,7 +41,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("vinayak")
 public class vinayak {
@@ -763,6 +770,7 @@ public class vinayak {
 	public String SortArray(@PathParam("str") String str) {
 		String s = str;
 		String r = "";
+
 		char arr[] = s.toCharArray();
 
 		Arrays.sort(arr);
@@ -836,7 +844,7 @@ public class vinayak {
 		List<Emps> list = new ArrayList<Emps>();
 
 		for (int i = 0; i < sal.length; i++) {
-			Emps e = new Emps(id[i], names[i], sal[i], bonus[i]);
+			Emps e = new Emps(id[i], names[i], sal[i], bonus[i], i, i);
 			list.add(e);
 		}
 		Collections.sort(list);
@@ -953,22 +961,19 @@ public class vinayak {
 	@Produces(MediaType.TEXT_HTML)
 	public String connectToDatabase() {
 		try {
-			Connection c = serviceRest.connect();			
-			
+			Connection c = serviceRest.connect();
+
 			return "connected  :" + c;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			return e.getMessage();
 		}
 	}
-	
-	
 
 	@GET
-	@Produces(MediaType.TEXT_HTML)			//converting file data into list then displaying
+	@Produces(MediaType.TEXT_HTML) // converting file data into list then displaying
 	@Path("listFilename/{name}")
 	public String fileIntoList(@PathParam("name") int name) throws FileNotFoundException {
-		
 
 		int i = 0;
 		String value = "";
@@ -981,11 +986,11 @@ public class vinayak {
 			FileInputStream fin = new FileInputStream("D:\\infra\\" + "tab_" + name + ".txt");
 			while ((i = fin.read()) != -1) {
 
-				if (i=='\n') {   								//"\n".equals(i) didnt worked here
+				if (i == '\n') { // "\n".equals(i) didnt worked here
 					l.add(value);
 					count++;
 					value = "";
-					
+
 				} else {
 					value = value + (char) i;
 				}
@@ -995,7 +1000,7 @@ public class vinayak {
 
 			for (String a : l) {
 				s += a + "<br>";
-				System.out.println(a+" ");
+				System.out.println(a + " ");
 			}
 
 		}
@@ -1007,138 +1012,392 @@ public class vinayak {
 		return s;
 
 	}
+
 	@GET
 	@Path("insert/{id},{name},{sal},{dep},{mgr}")
 	@Produces(MediaType.TEXT_HTML)
-	public String insert(@PathParam("id")int id,@PathParam("name")String name,@PathParam("sal")int sal,@PathParam("dep")int dep,@PathParam("mgr")int mgr) throws SQLException {
-		serviceRest db=new serviceRest();
-		
-		Connection con =serviceRest.connect();
+	public String insert(@PathParam("id") int id, @PathParam("name") String name, @PathParam("sal") int sal,
+			@PathParam("dep") int dep, @PathParam("mgr") int mgr) throws SQLException {
+		serviceRest db = new serviceRest();
+
+		Connection con = serviceRest.connect();
 		Statement st = con.createStatement();
-		if(con==null)
+		if (con == null)
 			return "not connected";
 		else {
-		
+
 			db.insert(id, name, sal, dep, mgr);
 			return "data saved";
 		}
 		/**/
 	}
-	
+
 	@GET
-	@Path("create/{id},{name},{courses},{age}")
-	@Produces(MediaType.TEXT_HTML)
-	public String createTable(@PathParam("id") int id,@PathParam("name") String name,@PathParam("courses") String courses,@PathParam("age") int age ) throws SQLException {
-		
-		serviceRest db=new serviceRest();
-		Connection con =serviceRest.connect();
-		Statement st = con.createStatement();
-		if(con==null)
+	@Path("table/{table_name}/{columns}")
+	@Produces(MediaType.APPLICATION_JSON)
+
+	public String createTable(@PathParam("columns") String columns, @PathParam("table_name") String table_name)
+			throws SQLException {
+
+		String[] column = columns.split(",");
+		serviceRest db = new serviceRest();
+		Connection con = serviceRest.connect();
+
+		if (con == null)
 			return "not connected";
+
 		else {
-		
-			db.createtbStudents(id, name, courses, age);
-			return "data saved";
+
+			db.createTable(table_name, column);
+			return "Student table created...";
 		}
-		
+
 	}
-	
+
 	@GET
 	@Path("personBday")
 	@Produces(MediaType.TEXT_HTML)
 	public String wishPerson(@Context HttpServletRequest req) {
-		String name= req.getParameter("uname");
-		String value[]= req.getParameterValues("age");
-		String s="";
-		
-		if(value==null)
+		String name = req.getParameter("uname");
+		String value[] = req.getParameterValues("age");
+		String s = "";
+
+		if (value == null)
 			return null;
-		
-		
-		int s1=Integer.parseInt(value[0]);   //only one value at index 0 after selection radio button.
-		
-			
-		switch(s1) {
+
+		int s1 = Integer.parseInt(value[0]); // only one value at index 0 after selection radio button.
+
+		switch (s1) {
 		case 30:
-		s+= "Happy b day  "+"<b>"+name+ "<br>you are celebrating your "+"0-30"+" birthday";
-		break;
+			s += "Happy b day  " + "<b>" + name + "<br>you are celebrating your " + "0-30" + " birthday";
+			break;
 		case 60:
-		s+= "Happy b day  "+"<b>"+name+ "<br>you are celebrating your "+"31-60"+" birthday";
-		break;
-		case 100:			
-		s+= "Happy b day  "+"<b>"+name+ "<br>you are celebrating your "+"61-100"+" birthday";
-		break;
+			s += "Happy b day  " + "<b>" + name + "<br>you are celebrating your " + "31-60" + " birthday";
+			break;
+		case 100:
+			s += "Happy b day  " + "<b>" + name + "<br>you are celebrating your " + "61-100" + " birthday";
+			break;
 		}
-		
+
 		return s;
 	}
-	
+
 	@GET
 	@Path("website/open")
 	@Produces(MediaType.TEXT_HTML)
-	public void websiteOpening(@Context HttpServletRequest req,@Context HttpServletResponse rep) throws IOException {
-		
-		String value= req.getParameter("web");  //picking by common name 'web'
-		
-		switch(value) {
-		
+	public void websiteOpening(@Context HttpServletRequest req, @Context HttpServletResponse rep) throws IOException {
+
+		String value = req.getParameter("web"); // picking by common name 'web'
+
+		switch (value) {
+
 		case "identity and access":
-			 rep.sendRedirect("https://www.identityandaccesssolutions.com/");
-		break;
-		
+			rep.sendRedirect("https://www.identityandaccesssolutions.com/");
+			break;
+
 		case "facebook":
 			rep.sendRedirect("https://www.facebook.com/");
-		break;
-		
-		case "google":			
+			break;
+
+		case "google":
 			rep.sendRedirect("https://www.google.com");
-		break;
-		
-		}	
-		
-	}
-	
-	@GET
-	@Path("token/{enter}/{delimiter}")   //delimiter allows you to split based on individual characters. eg @. 
-	@Produces(MediaType.TEXT_HTML)		//whereever @ character and . is present in string it splits.
-	
-	public String tokeniser(@PathParam("enter") String enter,@PathParam("delimiter")String delimiter) {
-		String s="";
-		StringTokenizer tock = new StringTokenizer(enter, delimiter);	
-		
-		while(tock.hasMoreTokens()) {
-			s+=tock.nextToken()+"<br>";
+			break;
+
 		}
-		
-		return s;
-		
-		
+
 	}
-	
+
 	@GET
-	@Path("outer") 
+	@Path("token/{enter}/{delimiter}") // delimiter allows you to split based on individual characters. eg @.
+	@Produces(MediaType.TEXT_HTML) // whereever @ character and . is present in string it splits.
+
+	public String tokeniser(@PathParam("enter") String enter, @PathParam("delimiter") String delimiter) {
+		String s = "";
+		StringTokenizer tock = new StringTokenizer(enter, delimiter);
+
+		while (tock.hasMoreTokens()) {
+			s += tock.nextToken() + "<br>";
+		}
+
+		return s;
+
+	}
+
+	@GET
+	@Path("outer")
 	@Produces(MediaType.TEXT_HTML)
-	
+
 	public String outerclass() {
 		Outer out = new Outer();
 		Outer.Inner in = out.new Inner();
-		Outer.Inner1 in1= new Outer.Inner1();
-		return in.i1+"---------"+in1.i2;
-		
-		
+		Outer.Inner1 in1 = new Outer.Inner1();
+		return in.i1 + "---------" + in1.i2;
+
 	}
-	
+
 	@GET
-	@Path("time") 
+	@Path("time")
 	@Produces(MediaType.TEXT_HTML)
 	public String getDate() {
-		Calendar cal = Calendar.getInstance();  //factory method is that method when called provides object
-		cal.set(2022,10,30,1,10);
-		return cal.getTime().toString()+"<br>"+
-				"Day: "+cal.get(cal.DAY_OF_WEEK)+"<br>"
-				+"Month_Day: "+cal.get(cal.DAY_OF_MONTH)+"<br>"
-				+"Year: "+ cal.get(cal.YEAR)+"<br>"
-				+"AM/PM: "+ cal.get(cal.AM_PM);
+		Calendar cal = Calendar.getInstance(); // factory method is that method when called provides object
+		cal.set(2022, 10, 30, 1, 10);
+		return cal.getTime().toString() + "<br>" + "Day: " + Calendar.DAY_OF_WEEK + "<br>" + "Month_Day: "
+				+ Calendar.DAY_OF_MONTH + "<br>" + "Year: " + Calendar.YEAR + "<br>" + "AM/PM: " + Calendar.AM_PM;
+	}
+
+	@GET
+	@Path("exception")
+	@Produces(MediaType.TEXT_HTML)
+	public String getExceptipon() throws Exception {
+		String s = "vinayaksd@97gmail.com";
+		String t = "";
+		try {
+			StringTokenizer st = new StringTokenizer(s, ".@");
+
+			while (st.hasMoreTokens()) {
+				t += st.nextToken();
+			}
+			if (st.hasMoreTokens() == false)
+				throw new IOException("no token");
+			else
+				throw new IOException("has some token");
+		} catch (Exception e) {
+			System.out.println("handled exception");
+			return e + "----";
 		}
+
+	}
+
+	@POST
+	@Path("insert_post")
+	@Consumes(MediaType.APPLICATION_JSON)
+
+	public String insert_postman(Emps e) throws SQLException {
+		serviceRest db = new serviceRest();
+		Connection con = serviceRest.connect();
+		Statement st = con.createStatement();
+
+		if (con == null)
+			return "not connected";
+
+		else {
+			db.insert_Emps(e);
+			return "data saved successfully...";
+		}
+	}
+
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path("timezone/{str1},{str2},{str3}")
+
+	public String timezone(@PathParam("str1") String str1, @PathParam("str2") String str2,
+			@PathParam("str3") String str3) {
+
+		String[] tz = TimeZone.getAvailableIDs();
+
+		TimeZone the_time_zone = TimeZone.getDefault();
+
+		if (str3 != null && str2 != null)
+			return TimeZone.getTimeZone(str1 + "/" + str2 + "/" + str3) + "<br>" + the_time_zone;
+
+		else if (str3 == null)
+			return TimeZone.getTimeZone(str1 + "/" + str2) + "";
+
+		else if (str2 == null && str3 == null)
+			return TimeZone.getTimeZone(str1) + "";
+
+		else
+			return "entered value is unable to process";
+		/*
+		 * String s = ""; for (String a : tz) s += a+"<br>"; return s;
+		 */
+	}
+
+	// -------------------------- questions
+	// --------------------------------------------
+
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path("reverseAscii/{str1}")
+	public String returnreverseAscii(@PathParam("str1") String str1) {
+		String arr[] = str1.split(" ");
+		String str = "";
+		String after = "";
+		for (int i = 0; i < arr.length; i++) {
+
+			for (int j =0 ; j <arr[i].length() ; j++) {
+
+				// System.out.println((int)  arr[i].charAt(j)+"= ");
+				str += (int) arr[i].charAt(j) + "=" + "<br>";
+				System.out.println((int) arr[i].charAt(j) + "= " + arr[i].charAt(j));
+				// System.out.println("after reverse........<br>");
+
+			}
+		}
+
+		String bafter = "after reversing........." + "<br>";
+
+		String a[] = str.split("=<br>");
+
+		for (String a1 : a) {
+			for (int i1 = a1.length() - 1; i1 >= 0; i1--) {
+				after += a1.charAt(i1);
+			}
+			after += after.substring(0,after.length())+" ";
+		}
+		
+		String value = "";
+		String aft[] = after.split(" ");
+
+		for (String a1 : aft) {
+			value += Integer.parseInt(a1);
+
+		}
+
+		return str + bafter + after;
+
+	}
+
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path("tableNames")
+	public static String insertintoTableNames() throws Exception {
+		FileInputStream fin = new FileInputStream("D:\\infra\\" + "names.txt");
+
+		int i = 0;
+		String values = "";
+		try {
+			while ((i = fin.read()) != -1) {
+				values += (char) i;
+			}		 
+			fin.close();
+		}
+		
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		serviceRest db = new serviceRest();
+		Connection con = serviceRest.connect();
+		if (con == null)
+			return "not connected";
+
+		else {
+			db.insert_names(values);
+			return "data saved successfully...";
+		}
+
+	}
+
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path("mapKeys")
+	public String sumOfKeys() {
+		Map<Integer, Integer> map = new HashMap<>();
+		String sum = "";
+		for (int i = 101; i < 1000; i++) {
+			String i1 = Integer.toString(i);
+			System.out.println(i1);
+			Integer ifi = Integer.parseInt(i1.charAt(0) + "") + Integer.parseInt(i1.charAt(1) + "")
+					+ Integer.parseInt(i1.charAt(2) + "");
+
+			map.put(i, ifi);
+		}
+		for (Entry<Integer, Integer> take : map.entrySet()) {
+			sum += take.getKey() + " :  " + take.getValue() + "<br>";
+		}
+		return sum;
+
+	}
+
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path("dateformate")
+	public String ndate() {
+
+		Date date = new Date();
+
+		SimpleDateFormat sdf = new SimpleDateFormat("dd_MM");
+		String strDate = sdf.format(date);
+		System.out.println("formatted date in dd_MM : " + strDate);
+		return strDate;
+
+	}
+
+	@SuppressWarnings("unlikely-arg-type")
+	@GET
+	@Produces(MediaType.TEXT_HTML)
+	@Path("PrintSum/{str}")
+	public String printSum(@PathParam("str") String str) {
+		Integer sum = 0;
+		Map<String, Integer> alpha = new HashMap<>();
+		alpha.put("A", 1);
+		alpha.put("B", 2);
+		alpha.put("C", 3);
+		alpha.put("D", 4);
+		alpha.put("E", 5);
+		alpha.put("F", 6);
+		alpha.put("G", 7);
+		alpha.put("H", 8);
+		alpha.put("I", 9);
+		alpha.put("J", 10);
+		alpha.put("K", 11);
+		alpha.put("L", 12);
+		alpha.put("M", 13);
+		alpha.put("N", 14);
+		alpha.put("O", 15);
+		alpha.put("P", 16);
+		alpha.put("Q", 17);
+		alpha.put("R", 18);
+		alpha.put("S", 19);
+		alpha.put("T", 20);
+		alpha.put("U", 21);
+		alpha.put("V", 22);
+		alpha.put("W", 23);
+		alpha.put("X", 24);
+		alpha.put("Y", 25);
+		alpha.put("Z", 26);
+		str.toUpperCase();
+
+		for (int i = 0; i < str.length(); i++) {
+
+			sum += alpha.get(String.valueOf(str.charAt(i)));
+		}
+		return "after adding alphabets characters sum is:  " + sum;
+
+	}
+	
+	 @GET
+	    @Path("AllDates")
+	    @Produces(MediaType.TEXT_HTML)
+	    public String q5() {
+	        Calendar c=Calendar.getInstance();
+	        c.set(2022, 0, 1);
+	        List<String> dates=new ArrayList<>();
+	        int i=1;
+	        while(i<=365) {
+	            String date=c.get(Calendar.DATE)+"";
+	            String month=(c.get(Calendar.MONTH)+1)+"";
+	            dates.add(date+"_"+month);
+	            c.add(Calendar.DATE, 1);
+	            i++;
+	        }
+	        
+	        String s="";
+	        for(String dt:dates)
+	            s+=dt+"<br>";
+	        return s;
+	        
+	    }
+	 	@GET
+	    @Path("Alphasum/{s}")
+	    @Produces(MediaType.TEXT_HTML)
+	    public String q2(@PathParam("s")String s) {
+	        String alp="abcdefghijklmnopqrstuvwxyz";
+	        int sum=0;
+	        for(int i=0;i<s.length();i++)
+	            sum+=alp.indexOf(s.charAt(i))+1;
+	        return sum+"";
+	    }
 
 }
