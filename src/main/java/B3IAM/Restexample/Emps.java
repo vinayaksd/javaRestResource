@@ -8,14 +8,19 @@ public class Emps implements Comparable<Emps>{
 	public String name;
 	public double sal;
 	double bonus;
+	int depid;
+	int manager_id;
 	
-	
-	Emps(int id, String name,double sal,double bonus){
+	Emps(){
+		
+	}
+	Emps(int id, String name,double sal,double bonus,int depid,int manager_id){
 		this.id=id;
 		this.name=name;
 		this.sal=sal;
 		this.bonus=bonus;
-		
+		this.depid=depid;
+		this.manager_id=manager_id;
 	}
 	
 

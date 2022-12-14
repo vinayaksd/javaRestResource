@@ -11,6 +11,16 @@ public class studs {
 	public int age;
 	public static String college="sit tumkur";
 	
+	studs(){
+		
+	}
+	public studs(int id, String name, String courses, int age) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.courses = courses;
+		this.age = age;
+	}
 	public String toString() {
 		return id+"  "+name+"  "+courses+"  "+age+"   "+college;
 	}
